@@ -1,0 +1,163 @@
+<div class="fslider" data-start-slide="1" data-duration="2000">
+	<div class="slide" data-img="https://picsum.photos/500/200?image=110">
+	</div>
+	<div class="slide" data-img="https://picsum.photos/500/200?image=120">
+	</div>
+	<div class="slide" data-img="https://picsum.photos/500/200?image=130">
+	</div>
+	<div class="slide" data-img="https://picsum.photos/500/200?image=140">
+	</div>
+	
+	<div class="controls">
+		<div class="control-slide" data-slide="1"></div>
+		<div class="control-slide" data-slide="2"></div>
+		<div class="control-slide" data-slide="3"></div>
+		<div class="control-slide" data-slide="4"></div>
+	</div>
+</div>
+<style type="text/css">
+	.fslider {
+		display: inline-block;
+		position: relative;
+		margin: 0;
+		padding: 0;
+		width: 100%;
+		height: 500px;
+		text-align: center;
+		color: white;
+		background: #888;
+	}
+
+	.fslider .slide, 
+	.fslider .controls .control-slide {
+		transition: all 1s;
+		-moz-transition: all 1s;
+		-webkit-transition: all 1s;
+		-ms-transition: all 1s;
+		-o-transition: all 1s;
+	} 
+
+	.fslider .slide {
+		position: absolute;
+		display: inline-block;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		opacity: 0;
+		background-position: center;
+		background-repeat: no-repeat;
+		background-size: cover;
+	}
+
+	.fslider .slide.current {
+		opacity: 1;
+	}
+
+	.fslider .controls {
+		position: absolute;
+		height: 20px;
+		width: 90%;
+		bottom: 15px;
+		left: 5%;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		cursor: pointer;
+	}
+
+	.fslider .controls .control-slide {
+		border: 1px solid white;
+		position: relative;
+		width: 12px;
+		height: 12px;
+		display: inline-block;
+		border-radius: 100%;
+		background: rgba(255,255,255,0);
+	}
+
+	.fslider .controls .control-slide:hover,
+	.fslider .controls .control-slide.current {
+		background: rgba(255,255,255,1);
+	}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+	jQuery(function(){
+		jQuery(".fslider").each(function(){
+			var $slider = jQuery(this);
+			
+			var startAt = parseInt($slider.attr("data-start-slide"));
+			var i = 1;
+			var duration = parseInt($slider.attr("data-duration"));
+			var numSlides = $slider.find(".slide").length;
+			
+			var currentToken = getToken();
+			
+			// iniciar el slider
+			$slider.find(".slide").each(function(){
+				var $slide = jQuery(this);
+				
+				// Poner imagen de fondo
+				$slide.css({
+					'background-image': 'url("'+$slide.attr('data-img')+'")'
+				});
+				
+				// Mostramos el slide si se trata de este
+				if (i == startAt) {
+					goToSlide(i, duration, numSlides, currentToken);
+				}
+				
+				i++;
+			});
+			
+			// controles
+			$slider.find('.controls .control-slide').on('click', function(e) {
+				var slideIndex = jQuery(this).attr('data-slide');
+				goToSlide(slideIndex, duration, numSlides);
+			});
+			
+			function getToken()
+			{
+				return currentToken = Date.now();
+			}
+			
+			function goToSlide(numSlide, duration, numSlides, token) {
+				if (!token) { // llamada manual, se cambia el token
+					currentToken = getToken();
+					token = currentToken;
+				} else {
+					if (token != currentToken) {
+						return; // token no coincide, cancelamos
+					}
+				}
+			
+				var j = 1;
+				var currentClass = "current";
+				var controls = $slider.find(".controls").find(".control-slide");
+				$slider.find(".slide").each(function(){
+					var $slide = jQuery(this);
+					
+					if (j == numSlide) {
+						$slide.addClass(currentClass);
+						controls.eq(j-1).addClass(currentClass);
+					} else {
+						$slide.removeClass(currentClass);
+						controls.eq(j-1).removeClass(currentClass);
+					}
+					
+					j++;
+				});
+				
+				var nextSlide = (numSlide % numSlides) + 1;
+				setTimeout(function(){
+					goToSlide(nextSlide, duration, numSlides, token);
+				}, duration);
+			}
+			
+		});
+	});
+</script>
